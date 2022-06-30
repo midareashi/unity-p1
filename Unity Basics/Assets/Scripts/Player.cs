@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
     [SerializeField] Transform groundCheckTransform;
     [SerializeField] LayerMask playerMask;
+    [SerializeField] TextMeshProUGUI coinText;
 
     bool isJumping;
     float horizontalInput;
     Rigidbody rb;
-    int superJumps;
+    int iCoins = 0;
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +35,7 @@ public class Player : MonoBehaviour
     // Once every physics update
     void FixedUpdate()
     {
+
         // Horizontal Input
         rb.velocity = new Vector3(horizontalInput, rb.velocity.y, 0);
 
@@ -42,15 +46,11 @@ public class Player : MonoBehaviour
 
         if (isJumping)
         {
-            float jumpPower = 5f;
-            if (superJumps > 0)
-            {
-                jumpPower *= 2;
-                superJumps--;
-            }
-            rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+            rb.AddForce(Vector3.up * 7, ForceMode.VelocityChange);
             isJumping = false;
         }
+        // Update Coin Counter
+        coinText.text = "Coins: " + iCoins.ToString();
     }
 
     void OnTriggerEnter(Collider other)
@@ -58,7 +58,8 @@ public class Player : MonoBehaviour
         if (other.gameObject.layer == 7)
         {
             Destroy(other.gameObject);
-            superJumps++;
+            iCoins++;
+            coinText.text = "Coins: " + iCoins.ToString();
         }
     }
 }
