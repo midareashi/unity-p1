@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -11,11 +10,11 @@ public class Player : MonoBehaviour
     [SerializeField] TextMeshProUGUI massText;
 
     bool isJumping;
-    bool isOnBreakableFloor = false;
     float horizontalInput;
     Rigidbody rb;
     int coins = 0;
     int mass = 1;
+    GameObject BreakableFloor;
 
 
     // Start is called before the first frame update
@@ -40,18 +39,23 @@ public class Player : MonoBehaviour
             mass = 1;
         }
         horizontalInput = Input.GetAxis("Horizontal") * 1.9f;
+
+        if (BreakableFloor != null && mass == 2)
+        {
+            Destroy(BreakableFloor.transform.parent.gameObject);
+            BreakableFloor = null;
+        }
     }
 
     // Once every physics update
     void FixedUpdate()
     {
-        if (isOnBreakableFloor && mass == 2)
-        {
-
-        }
-
         // Horizontal Input
         rb.velocity = new Vector3(horizontalInput, rb.velocity.y, 0);
+
+        // Update Coin Counter
+        coinText.text = "Coins: " + coins.ToString();
+        massText.text = "Mass: " + mass.ToString();
 
         if (Physics.OverlapSphere(groundCheckTransform.position, 0.1f, playerMask).Length == 0)
         {
@@ -63,9 +67,6 @@ public class Player : MonoBehaviour
             rb.AddForce(Vector3.up * 7, ForceMode.VelocityChange);
             isJumping = false;
         }
-        // Update Coin Counter
-        coinText.text = "Coins: " + coins.ToString();
-        massText.text = "Mass: " + mass.ToString();
     }
 
     void OnTriggerEnter(Collider other)
@@ -76,14 +77,13 @@ public class Player : MonoBehaviour
             coins++;
             coinText.text = "Coins: " + coins.ToString();
         }
-
         if (other.gameObject.layer == 8)
         {
-            isOnBreakableFloor = true;
-            if (mass == 2)
-            {
-                Destroy(other.transform.parent.gameObject);
-            }
+            BreakableFloor = other.gameObject;
         }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        BreakableFloor = null;
     }
 }
