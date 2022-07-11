@@ -8,11 +8,14 @@ public class Player : MonoBehaviour
     [SerializeField] Transform groundCheckTransform;
     [SerializeField] LayerMask playerMask;
     [SerializeField] TextMeshProUGUI coinText;
+    [SerializeField] TextMeshProUGUI massText;
 
     bool isJumping;
+    bool isOnBreakableFloor = false;
     float horizontalInput;
     Rigidbody rb;
-    int iCoins = 0;
+    int coins = 0;
+    int mass = 1;
 
 
     // Start is called before the first frame update
@@ -28,13 +31,24 @@ public class Player : MonoBehaviour
         {
             isJumping = true;
         }
-
-        horizontalInput = Input.GetAxis("Horizontal");
+        if (Input.GetKeyDown("e"))
+        {
+            mass = 2;
+        }
+        if (Input.GetKeyDown("q"))
+        {
+            mass = 1;
+        }
+        horizontalInput = Input.GetAxis("Horizontal") * 1.9f;
     }
 
     // Once every physics update
     void FixedUpdate()
     {
+        if (isOnBreakableFloor && mass == 2)
+        {
+
+        }
 
         // Horizontal Input
         rb.velocity = new Vector3(horizontalInput, rb.velocity.y, 0);
@@ -50,7 +64,8 @@ public class Player : MonoBehaviour
             isJumping = false;
         }
         // Update Coin Counter
-        coinText.text = "Coins: " + iCoins.ToString();
+        coinText.text = "Coins: " + coins.ToString();
+        massText.text = "Mass: " + mass.ToString();
     }
 
     void OnTriggerEnter(Collider other)
@@ -58,8 +73,17 @@ public class Player : MonoBehaviour
         if (other.gameObject.layer == 7)
         {
             Destroy(other.gameObject);
-            iCoins++;
-            coinText.text = "Coins: " + iCoins.ToString();
+            coins++;
+            coinText.text = "Coins: " + coins.ToString();
+        }
+
+        if (other.gameObject.layer == 8)
+        {
+            isOnBreakableFloor = true;
+            if (mass == 2)
+            {
+                Destroy(other.transform.parent.gameObject);
+            }
         }
     }
 }
