@@ -22,17 +22,26 @@ public class Player : MonoBehaviour
     float speed = 1.9f;
     float storedSpeed = 0;
     GameObject BreakableFloor;
-
+    Vector3 playerStart;
+    int interval = 5;
+    float nextTime = 0;
+    bool nextInterval = false;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        playerStart = rb.position;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Time.time >= nextTime)
+        {
+            nextInterval = true;
+            nextTime += interval;
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             isJumping = true;
@@ -43,7 +52,10 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown("q"))
         {
-            mass = 1;
+            if (mass != 0.25f)
+            {
+                mass += -0.25f;
+            }   
         }
         horizontalInput = Input.GetAxis("Horizontal") * speed;
 
@@ -52,6 +64,15 @@ public class Player : MonoBehaviour
             Destroy(BreakableFloor.transform.parent.gameObject);
             BreakableFloor = null;
         }
+        if (nextInterval)
+        {
+            if (mass < 1)
+            {
+                storedMass += (1 - mass);
+                storedMassText.text = "Stored Mass: " + storedMass.ToString();
+            }
+        }
+        nextInterval = false;
     }
 
     // Once every physics update
@@ -87,6 +108,13 @@ public class Player : MonoBehaviour
         if (other.gameObject.layer == 8)
         {
             BreakableFloor = other.gameObject;
+        }
+        if (other.gameObject.layer == 9)
+        {
+            //Game Over
+            rb.position = playerStart;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
     }
     private void OnTriggerExit(Collider other)
