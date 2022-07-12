@@ -8,12 +8,19 @@ public class Player : MonoBehaviour
     [SerializeField] LayerMask playerMask;
     [SerializeField] TextMeshProUGUI coinText;
     [SerializeField] TextMeshProUGUI massText;
+    [SerializeField] TextMeshProUGUI storedMassText;
+    [SerializeField] TextMeshProUGUI speedText;
+    [SerializeField] TextMeshProUGUI storedSpeedText;
+
 
     bool isJumping;
     float horizontalInput;
     Rigidbody rb;
     int coins = 0;
-    int mass = 1;
+    float mass = 1f;
+    float storedMass = 0;
+    float speed = 1.9f;
+    float storedSpeed = 0;
     GameObject BreakableFloor;
 
 
@@ -38,9 +45,9 @@ public class Player : MonoBehaviour
         {
             mass = 1;
         }
-        horizontalInput = Input.GetAxis("Horizontal") * 1.9f;
+        horizontalInput = Input.GetAxis("Horizontal") * speed;
 
-        if (BreakableFloor != null && mass == 2)
+        if (BreakableFloor != null && mass >= 2)
         {
             Destroy(BreakableFloor.transform.parent.gameObject);
             BreakableFloor = null;
@@ -53,7 +60,7 @@ public class Player : MonoBehaviour
         // Horizontal Input
         rb.velocity = new Vector3(horizontalInput, rb.velocity.y, 0);
 
-        // Update Coin Counter
+        // Update Counters
         coinText.text = "Coins: " + coins.ToString();
         massText.text = "Mass: " + mass.ToString();
 
