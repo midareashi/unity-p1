@@ -8,19 +8,17 @@ public class Player : MonoBehaviour
     [SerializeField] LayerMask playerMask;
     [SerializeField] TextMeshProUGUI coinText;
     [SerializeField] TextMeshProUGUI massText;
-    [SerializeField] TextMeshProUGUI storedMassText;
+    [SerializeField] TextMeshProUGUI massStoredText;
     [SerializeField] TextMeshProUGUI speedText;
-    [SerializeField] TextMeshProUGUI storedSpeedText;
-
+    [SerializeField] TextMeshProUGUI speedStoredText;
 
     bool isJumping;
     float horizontalInput;
     Rigidbody rb;
     int coins = 0;
     float mass = 1f;
-    float storedMass = 0;
+    float massStored = 10f;
     float speed = 1.9f;
-    float storedSpeed = 0;
     GameObject BreakableFloor;
     Vector3 playerStart;
     int interval = 1;
@@ -42,26 +40,34 @@ public class Player : MonoBehaviour
             nextInterval = true;
             nextTime += interval;
         }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             isJumping = true;
         }
-        if (Input.GetKeyDown("e"))
-        {
-            if ((mass - 1) < storedMass)
-            {
-                mass += 0.25f;
-                rb.mass = mass;
-            }
-        }
+
+        // Decrease Mass
         if (Input.GetKeyDown("q"))
         {
             if (mass != 0.25f)
             {
                 mass += -0.25f;
                 rb.mass = mass;
-            }   
+                massText.text = "Mass: " + mass.ToString();
+            }
         }
+
+        // Increase Mass
+        if (Input.GetKeyDown("e"))
+        {
+            if ((mass - 1) < massStored)
+            {
+                mass += 0.25f;
+                rb.mass = mass;
+                massText.text = "Mass: " + mass.ToString();
+            }
+        }
+
         horizontalInput = Input.GetAxis("Horizontal") * speed;
 
         if (BreakableFloor != null && mass >= 2)
@@ -69,17 +75,10 @@ public class Player : MonoBehaviour
             Destroy(BreakableFloor.transform.parent.gameObject);
             BreakableFloor = null;
         }
+
         if (nextInterval)
         {
-            if (mass < 1)
-            {
-                storedMass += (1 - mass);
-                storedMassText.text = "Stored Mass: " + storedMass.ToString();
-            }
-            if (mass > 1)
-            {
-                storedMass += (1 - mass);
-            }
+            ModifyMass();
         }
         nextInterval = false;
     }
@@ -89,10 +88,6 @@ public class Player : MonoBehaviour
     {
         // Horizontal Input
         rb.velocity = new Vector3(horizontalInput, rb.velocity.y, 0);
-
-        // Update Counters
-        coinText.text = "Coins: " + coins.ToString();
-        massText.text = "Mass: " + mass.ToString();
 
         if (Physics.OverlapSphere(groundCheckTransform.position, 0.1f, playerMask).Length == 0)
         {
@@ -130,4 +125,32 @@ public class Player : MonoBehaviour
     {
         BreakableFloor = null;
     }
+
+    private void ModifyMass()
+    {
+        float massDiff = (mass - 1);
+
+        // Update Mass Storage
+        massStored += -massDiff;
+
+        // Check if we have enough mass stored to continue spending
+        if (massDiff > 0 && massDiff > massStored)
+        {
+            mass = 1 + massStored;
+            rb.mass = mass;
+        }
+
+        massText.text = "Mass: " + mass.ToString();
+        massStoredText.text = "Stored Mass: " + massStored.ToString();
+    }
 }
+
+/*
+ 
+Mass = 0.75
+Mass Difference = -0.25
+
+Mass 1.5
+Mass Difference = 0.5
+ 
+ */
