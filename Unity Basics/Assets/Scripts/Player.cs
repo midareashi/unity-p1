@@ -23,7 +23,7 @@ public class Player : MonoBehaviour
     float storedSpeed = 0;
     GameObject BreakableFloor;
     Vector3 playerStart;
-    int interval = 5;
+    int interval = 1;
     float nextTime = 0;
     bool nextInterval = false;
 
@@ -48,13 +48,18 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown("e"))
         {
-            mass = 2;
+            if ((mass - 1) < storedMass)
+            {
+                mass += 0.25f;
+                rb.mass = mass;
+            }
         }
         if (Input.GetKeyDown("q"))
         {
             if (mass != 0.25f)
             {
                 mass += -0.25f;
+                rb.mass = mass;
             }   
         }
         horizontalInput = Input.GetAxis("Horizontal") * speed;
@@ -70,6 +75,10 @@ public class Player : MonoBehaviour
             {
                 storedMass += (1 - mass);
                 storedMassText.text = "Stored Mass: " + storedMass.ToString();
+            }
+            if (mass > 1)
+            {
+                storedMass += (1 - mass);
             }
         }
         nextInterval = false;
