@@ -144,13 +144,3 @@ public class Player : MonoBehaviour
         massStoredText.text = "Stored Mass: " + massStored.ToString();
     }
 }
-
-/*
- 
-Mass = 0.75
-Mass Difference = -0.25
-
-Mass 1.5
-Mass Difference = 0.5
- 
- */
