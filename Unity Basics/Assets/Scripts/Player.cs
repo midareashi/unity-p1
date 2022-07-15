@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 public class Player : MonoBehaviour
 {
@@ -25,11 +26,30 @@ public class Player : MonoBehaviour
     float nextTime = 0;
     bool nextInterval = false;
 
+    public class BreakableFloorList
+    {
+        public string tag {get; set;}
+        public float threshold {get; set;}
+    }
+
+    public List<BreakableFloorList> BreakableFloors = new List<BreakableFloorList>();
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerStart = rb.position;
+
+        BreakableFloors.Add(new BreakableFloorList()
+        {
+            tag = "floor-paper",
+            threshold = 0.5f
+        });
+        BreakableFloors.Add(new BreakableFloorList()
+        {
+            tag = "floor-wood",
+            threshold = 2f
+        });
     }
 
     // Update is called once per frame
@@ -70,10 +90,17 @@ public class Player : MonoBehaviour
 
         horizontalInput = Input.GetAxis("Horizontal") * speed;
 
-        if (BreakableFloor != null && mass >= 2)
+        if (BreakableFloor != null)
         {
-            Destroy(BreakableFloor.transform.parent.gameObject);
-            BreakableFloor = null;
+            string tag = BreakableFloor.tag;
+            float threshold = BreakableFloors.Where(x => x.tag == tag).Select(x => x.threshold).FirstOrDefault();
+
+            coinText.text = tag.ToString() + " " + threshold.ToString();
+            if (mass >= threshold)
+            {
+                Destroy(BreakableFloor.transform.parent.gameObject);
+                BreakableFloor = null;
+            }
         }
 
         if (nextInterval)

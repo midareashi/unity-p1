@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - floor-paper
+  - floor-wood
   layers:
   - Default
   - TransparentFX
@@ -13,7 +15,7 @@ TagManager:
   - UI
   - Player
   - Coin
-  - Wood Floor
+  - Breakable Floor
   - Game Over
   - 
   - 
